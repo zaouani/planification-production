@@ -83,9 +83,7 @@ def exemple_simulation(request):
     if request.method == 'POST' and 'exemple' in request.POST:
         request.session['mode'] = 'exemple'
         return redirect('config_poids')
-    else:
-        get_token(request)
-        return render(request, 'exemple_form.html')
+    
     
 def config_poids(request):
     default_poids = {
@@ -143,6 +141,7 @@ def home(request):
     return render(request, 'home.html')
 
 def exemple_detaille(request):
+    get_token(request)
     return render(request, 'exemple_detaille.html')
 
 def supprimer_produit(request, produit_id):
