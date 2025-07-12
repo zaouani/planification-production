@@ -24,13 +24,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-key')
 DEBUG = True
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'prodapp.up.railway.app']
 
 
 
 CSRF_COOKIE_SECURE = False
 SESSION_COOKIE_SECURE = False
-CSRF_TRUSTED_ORIGINS = ['https://web-production-d2e10.up.railway.app']
+CSRF_TRUSTED_ORIGINS = ['https://prodapp.up.railway.app']
 
 # Application definition
 
