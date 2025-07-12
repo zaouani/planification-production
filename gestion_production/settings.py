@@ -29,6 +29,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 CSRF_COOKIE_SECURE = False
 SESSION_COOKIE_SECURE = False
+CSRF_TRUSTED_ORIGINS = ['https://web-production-d2e10.up.railway.app']
 
 # Application definition
 
