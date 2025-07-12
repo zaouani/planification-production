@@ -1,1 +1,1 @@
-web: gunicorn gestion_production.wsgi:application
+web: gunicorn gestion_production

@@ -20,11 +20,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-DEBUG = os.environ.get('DEBUG', 'False') == 'True'
-SECRET_KEY = os.environ.get('SECRET_KEY', 'fallback-secret')
-ALLOWED_HOSTS = ['.onrender.com']
+SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-key')
+DEBUG = os.environ.get('DEBUG', '') != 'False'
+ALLOWED_HOSTS = ['.railway.app']
 
-
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # Application definition
 
 INSTALLED_APPS = [
@@ -45,6 +46,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+
 ]
 
 ROOT_URLCONF = 'gestion_production.urls'
@@ -70,13 +73,15 @@ WSGI_APPLICATION = 'gestion_production.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+import dj_database_url
 
+DATABASES = {
+    'default': dj_database_url.config(
+        default='sqlite:///db.sqlite3',  # en local si aucune variable d’environnement
+        conn_max_age=600,
+        ssl_require=True
+    )
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
