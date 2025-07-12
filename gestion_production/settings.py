@@ -26,7 +26,6 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-key')
 DEBUG = True
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',')
 
-ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
 
 
 CSRF_COOKIE_SECURE = False
@@ -90,9 +89,6 @@ DATABASES = {
         ssl_require=True
     )
 }
-host=False
-if ENVIRONMENT == 'production' or host==True:
-    DATABASES['default'] = dj_database_url.parse(os.environ.get('DATABASE_URL'), conn_max_age=600, ssl_require=True)
 
 
 
