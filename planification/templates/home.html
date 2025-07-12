@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}Accueil | Planification+{% endblock %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+
+    <!-- Header -->
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold text-primary">Bienvenue sur <span class="text-dark">Planification+</span></h1>
+        <p class="lead text-muted">Optimisez vos processus de production en intégrant performance, apprentissage et équité dans chaque tâche.</p>
+    </div>
+
+    <!-- Contexte & Objectifs -->
+    <div class="row align-items-start g-4 mb-5">
+        <div class="col-md-6">
+            <div class="p-4 shadow-sm rounded bg-white h-100">
+                <h4 class="text-secondary"><i class="fas fa-cogs me-2"></i>Contexte</h4>
+                <p>
+                    Notre solution aide les entreprises à planifier intelligemment la production
+                    en tenant compte des <strong>performances réelles</strong>, des <strong>effets d’apprentissage</strong>
+                    et des <strong>phases d’oubli</strong> des opérateurs.
+                </p>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="p-4 shadow-sm rounded bg-white h-100">
+                <h4 class="text-secondary"><i class="fas fa-bullseye me-2"></i>Objectifs</h4>
+                <ul class="mb-0">
+                    <li>Réduire les coûts de sous-performance</li>
+                    <li>Optimiser le makespan global</li>
+                    <li>Répartir équitablement la charge de travail</li>
+                    <li>Améliorer les compétences des opérateurs</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bloc action -->
+    <div class="card shadow-sm border-0 mb-5">
+        <div class="card-header bg-gradient bg-light text-center">
+            <h5 class="mb-0"><i class="fas fa-rocket text-success me-2"></i>Lancer une simulation</h5>
+        </div>
+        <div class="card-body text-center">
+            <p class="text-muted">Choisissez un mode pour démarrer votre expérience :</p>
+            <div class="d-flex flex-column flex-md-row justify-content-center gap-3">
+                <a href="{% url 'saisie_produits' %}" class="btn btn-outline-primary btn-lg px-4">
+                    ➕ Mode manuel
+                </a>
+                <form method="post" action="{% url 'exemple_detaille' %}">
+                    {% csrf_token %}
+                    <button type="submit" name="exemple" class="btn btn-outline-secondary btn-lg px-4">
+                        🧪 Mode exemple
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Informations complémentaires -->
+    <div class="row text-center g-4">
+        <div class="col-md-4">
+            <div class="p-4 border rounded shadow-sm h-100">
+                <i class="fas fa-user-clock fa-2x text-primary mb-2"></i>
+                <h6 class="fw-bold">Sous-performance</h6>
+                <p class="text-muted">Retards liés à la maîtrise partielle des tâches intégrés dans la planification.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-4 border rounded shadow-sm h-100">
+                <i class="fas fa-chart-line fa-2x text-success mb-2"></i>
+                <h6 class="fw-bold">Évolution dynamique</h6>
+                <p class="text-muted">Apprentissage progressif et oubli automatique pris en compte.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-4 border rounded shadow-sm h-100">
+                <i class="fas fa-project-diagram fa-2x text-warning mb-2"></i>
+                <h6 class="fw-bold">Ordonnancement optimal</h6>
+                <p class="text-muted">Affectation intelligente des tâches basée sur la performance globale.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

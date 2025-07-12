@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Aperçu des Données Saisies{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="mb-4 text-primary">Aperçu des Données Saisies</h2>
+
+    {% if produits %}
+        {% for produit in produits %}
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <strong>{{ produit.id_produit }}</strong> — CR: {{ produit.cr }} — Quantité: {{ produit.quantite }}
+                    </h5>
+                    <div>
+                        <a href="{% url 'modifier_produit' produit.id %}" class="btn btn-sm btn-outline-warning">📝 Modifier</a>
+                        <form method="post" action="{% url 'supprimer_produit_apercu' produit.id %}" class="d-inline" onsubmit="return confirm('Supprimer ce produit ?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger">🗑️ Supprimer</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if produit.taches.all %}
+                        <table class="table table-bordered align-middle">
+                            <thead class="table-secondary">
+                                <tr>
+                                    <th>ID Tâche</th>
+                                    <th>Description</th>
+                                    <th>Machine</th>
+                                    <th>Temps Théorique</th>
+                                    <th>Ordre</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for tache in produit.taches.all %}
+                                    <tr>
+                                        <td>{{ tache.id_tache }}</td>
+                                        <td>{{ tache.description }}</td>
+                                        <td>{{ tache.machine }}</td>
+                                        <td>{{ tache.temps_standard }} min</td>
+                                        <td>{{ tache.ordre }}</td>
+                                        <td class="text-center">
+                                            <a href="{% url 'modifier_tache' tache.id %}" class="btn btn-sm btn-outline-warning">📝</a>
+                                            <form method="post" action="{% url 'supprimer_tache_apercu' tache.id %}" class="d-inline" onsubmit="return confirm('Supprimer cette tâche ?');">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">🗑️</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p class="text-muted">Aucune tâche enregistrée pour ce produit.</p>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+<!--  Aperçu des Opérateurs -->
+<div class="mt-5">
+
+    {% if operateurs %}
+        {% for op in operateurs %}
+            <div class="card mb-3 shadow-sm">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Opérateur <strong>{{ op.id_operateur }}</strong> — LC : {{ op.lc }}%</h5>
+                <div>
+                    <a href="{% url 'modifier_operateur' op.id %}" class="btn btn-sm btn-outline-warning">📝 Modifier</a>
+                    <form method="post" action="{% url 'supprimer_operateur' op.id %}" class="d-inline" onsubmit="return confirm('Supprimer cet opérateur ?');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-danger">🗑️ Supprimer</button>
+                    </form>
+                </div>
+                </div>
+                <div class="card-body">
+                    {% with op_performances=performances|dictsort:"tache.id" %}
+                        {% with perf_list=op_performances|dictsort:"tache.produit.id" %}
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Produit</th>
+                                        <th>Tâche</th>
+                                        <th>Description</th>
+                                        <th>Performance Initiale (min)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for perf in performances %}
+                                        {% if perf.operateur.id == op.id %}
+                                            <tr>
+                                                <td>{{ perf.tache.produit.id_produit }}</td>
+                                                <td>{{ perf.tache.id_tache }}</td>
+                                                <td>{{ perf.tache.description }}</td>
+                                                <td>{{ perf.performance_initiale }}</td>
+                                            </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% endwith %}
+                    {% endwith %}
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p class="text-muted">Aucun opérateur enregistré.</p>
+    {% endif %}
+</div>
+
+        <!-- Bouton Lancer la simulation -->
+        <div class="text-center mt-5">
+            <a href="{% url 'config_poids' %}" class="btn btn-lg btn-success px-5">
+                🚀 Lancer la simulation
+            </a>
+        </div>
+
+    {% else %}
+        <p class="text-muted">Aucun produit n’a été enregistré pour le moment.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

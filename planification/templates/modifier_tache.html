@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Modifier la Tâche{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4 text-primary">🛠️ Modifier la Tâche <strong>{{ tache.id_tache }}</strong></h2>
+
+    <form method="post" class="card p-4 shadow-sm bg-light">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="mt-3">
+            <button type="submit" class="btn btn-success">
+                💾 Enregistrer
+            </button>
+            <a href="{% url 'apercu_donnees' %}" class="btn btn-secondary">
+                ❌ Annuler
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

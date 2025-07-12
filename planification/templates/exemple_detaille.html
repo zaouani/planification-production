@@ -1,0 +1,47 @@
+
+{% extends 'base.html' %}
+{% block title %}Configuration des Poids{% endblock %}
+{% load static %}
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-primary mb-4"><i class="fas fa-flask"></i> Exemple de simulation détaillé</h2>
+
+    <p>
+        Cet exemple met en scène un atelier de production comportant plusieurs opérateurs, produits et tâches. 
+        Il illustre la capacité de la plateforme à ordonnancer efficacement la production tout en prenant en compte 
+        la sous-performance, l'apprentissage et la complexité des tâches.
+    </p>
+
+    <div class="text-center my-4">
+        <img src="{% static 'img/exemple_atelier.jpg' %}" class="img-fluid rounded shadow" alt="Schéma de l'atelier">
+        <small class="d-block text-muted mt-2">Figure 1 </small>
+    </div>
+
+    <h4 class="mt-4">Contexte</h4>
+    <ul>
+        <li>4 opérateurs aux niveaux de compétence variables</li>
+        <li>6 produits, chacun composé de 3 à 5 tâches</li>
+    </ul>
+
+    <div class="text-center my-4">
+        <img src="{% static 'img/performance_apprentissage.jpg' %}" class="img-fluid rounded" alt="Effet d'apprentissage">
+        <small class="d-block text-muted mt-2">Figure 2 </small>
+    </div>
+
+    <h4 class="mt-4">Objectifs de la simulation</h4>
+    <ul>
+        <li>Minimiser le makespan</li>
+        <li>Limiter la sous-performance</li>
+        <li>Répartir équitablement les charges</li>
+    </ul>
+
+    <div class="text-center my-5">
+        <form method="post" action="{% url 'exemple_simulation' %}">
+            {% csrf_token %}
+            <button type="submit" name="exemple" class="btn btn-outline-primary">
+                Tester avec cet Exemple
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

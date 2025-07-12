@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Modifier l'Opérateur{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-primary mb-4">🛠️ Modifier l'opérateur {{ operateur.id_operateur }}</h2>
+
+    <form method="post" class="card p-4 shadow-sm bg-light">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">💾 Enregistrer</button>
+        <a href="{% url 'apercu_donnees' %}" class="btn btn-secondary">↩️ Annuler</a>
+    </form>
+</div>
+{% endblock %}

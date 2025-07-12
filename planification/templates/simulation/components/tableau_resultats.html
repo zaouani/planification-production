@@ -1,0 +1,29 @@
+<div class="card mb-4">
+    <div class="card-header">
+        <h3>Planning de Production</h3>
+    </div>
+    <div class="card-body table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Tâche</th>
+                    <th>Machine</th>
+                    <th>Début</th>
+                    <th>Fin</th>
+                    <th>Opérateur</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in planning %}
+                <tr>
+                    <td>{{ item.tache }}</td>
+                    <td>{{ item.machine }}</td>
+                    <td>{{ item.debut|date:"H:i" }}</td>
+                    <td>{{ item.fin|date:"H:i" }}</td>
+                    <td>{{ item.operateur }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

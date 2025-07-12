@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block title %}Configuration des Poids{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <div class="text-center">
+            <div class="circle-step bg-primary text-white">1</div>
+            <small>Produits</small>
+        </div>
+        <div class="line flex-grow-1 mx-1 bg-primary"></div>
+        <div class="text-center">
+            <div class="circle-step bg-primary text-white">2</div>
+            <small>Tâches</small>
+        </div>
+        <div class="line flex-grow-1 mx-1 bg-primary"></div>
+        <div class="text-center">
+            <div class="circle-step bg-primary text-white">3</div>
+            <small>Opérateurs</small>
+        </div>
+        <div class="line flex-grow-1 mx-1 bg-primary"></div>
+        <div class="text-center">
+            <div class="circle-step bg-primary text-white">4</div>
+            <small>Poids</small>
+        </div>
+        <div class="line flex-grow-1 mx-1 bg-light"></div>
+    </div>
+</div>
+
+<style>
+.circle-step {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    line-height: 36px;
+    font-weight: bold;
+}
+.line {
+    height: 4px;
+}
+</style>
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Configuration des Poids (Total = 100%)</h2>
+
+    <form method="post" id="poidsForm">
+        {% csrf_token %}
+
+        <div class="row g-4">
+            {% for champ in champs %}
+            <div class="col-md-6">
+                <label for="{{ champ.name }}" class="form-label">{{ champ.label }}</label>
+                <input type="number" min="0" max="100" class="form-control poids-input" 
+                       id="{{ champ.name }}" name="{{ champ.name }}" value="{{ champ.value }}" required>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="mt-4">
+            <div class="progress">
+                <div id="poidsTotalBar" class="progress-bar" role="progressbar" style="width: 0%">0%</div>
+            </div>
+            <div id="poidsWarning" class="text-danger mt-2 d-none">La somme des poids doit être égale à 100%</div>
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-4" id="submitBtn" disabled>Valider</button>
+            
+    </form>
+</div>
+
+<script>
+    const inputs = document.querySelectorAll('.poids-input');
+    const totalBar = document.getElementById('poidsTotalBar');
+    const warning = document.getElementById('poidsWarning');
+    const submitBtn = document.getElementById('submitBtn');
+
+    function updateTotal() {
+        let total = 0;
+        inputs.forEach(input => {
+            total += parseFloat(input.value) || 0;
+        });
+
+        totalBar.style.width = total + '%';
+        totalBar.textContent = total + '%';
+        totalBar.classList.toggle('bg-success', total === 100);
+        totalBar.classList.toggle('bg-danger', total !== 100);
+
+        if (total === 100) {
+            warning.classList.add('d-none');
+            submitBtn.disabled = false;
+        } else {
+            warning.classList.remove('d-none');
+            submitBtn.disabled = true;
+        }
+    }
+
+    inputs.forEach(input => {
+        input.addEventListener('input', updateTotal);
+    });
+
+    updateTotal();  // initial call
+</script>
+{% endblock %}

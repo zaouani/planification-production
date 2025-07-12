@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}Produits{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <div class="text-center">
+            <div class="circle-step bg-primary text-white">1</div>
+            <small>Produits</small>
+        </div>
+        <div class="line flex-grow-1 mx-1 bg-primary"></div>
+        <div class="text-center">
+            <div class="circle-step bg-primary text-white">2</div>
+            <small>Tâches</small>
+        </div>
+        <div class="line flex-grow-1 mx-1 bg-primary"></div>
+        <div class="text-center">
+            <div class="circle-step bg-primary text-white">3</div>
+            <small>Opérateurs</small>
+        </div>
+        <div class="line flex-grow-1 mx-1 bg-secondary"></div>
+        <div class="text-center">
+            <div class="circle-step bg-light text-dark border">4</div>
+            <small>Poids</small>
+        </div>
+        <div class="line flex-grow-1 mx-1 bg-light"></div>
+    </div>
+</div>
+
+<style>
+.circle-step {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    line-height: 36px;
+    font-weight: bold;
+}
+.line {
+    height: 4px;
+}
+</style>
+
+<div class="container form-container">
+
+    <!-- 🧑‍🔧 Formulaire Opérateur + Performance -->
+    <div class="card shadow border-0 mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Saisie des Opérateurs</h4>
+        </div>
+        <div class="card-body">
+            <form method="post" action="{% url 'saisie_operateurs' %}">
+                {% csrf_token %}
+                <h5 class="mb-3">Nouvel Opérateur</h5>
+                {{ form_operateur.as_p }}
+
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Produit</th>
+                            <th>Tâche</th>
+                            <th>Description</th>
+                            <th>Performance initiale (min)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for tache in taches %}
+                        <tr>
+                            <td>{{ tache.produit.id_produit }}</td>
+                            <td>{{ tache.id_tache }}</td>
+                            <td>{{ tache.description }}</td>
+                            <td>
+                                <input type="number" step="0.01" min="0" name="performance_{{ tache.id }}"
+                                    class="form-control" required>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <button type="submit" name="enregistrer" class="btn btn-success mt-3">Enregistrer</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 👤 Liste des opérateurs -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Opérateurs enregistrés</h5>
+        </div>
+        <div class="card-body">
+            <ul class="list-group">
+                {% for operateur in operateurs %}
+                    <li class="list-group-item">
+                        <strong>{{ operateur.id_operateur }}</strong> (LC : {{ operateur.lc }}%)
+                    </li>
+                {% empty %}
+                    <li class="list-group-item text-muted">Aucun opérateur enregistré pour le moment.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- 🧪 Lancer la Simulation -->
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-secondary text-white">
+            <h5 class="mb-0">Simulation</h5>
+        </div>
+        <div class="card-body text-center">
+            <form method="post" action="{% url 'saisie_operateurs' %}" class="simulation-form">
+                {% csrf_token %}
+                <a href="{% url 'apercu_donnees' %}" class="btn btn-primary btn-simul">
+                    Aperçu des Données Saisies
+                </a>
+            </form>
+            
+        </div>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Produits{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <div class="text-center">
+            <div class="circle-step bg-primary text-white">1</div>
+            <small>Produits</small>
+        </div>
+        <div class="line flex-grow-1 mx-1 bg-primary"></div>
+        <div class="text-center">
+            <div class="circle-step bg-primary text-white">2</div>
+            <small>Tâches</small>
+        </div>
+        <div class="line flex-grow-1 mx-1 bg-secondary"></div>
+        <div class="text-center">
+            <div class="circle-step bg-light text-dark border">3</div>
+            <small>Opérateurs</small>
+        </div>
+        <div class="line flex-grow-1 mx-1 bg-secondary"></div>
+        <div class="text-center">
+            <div class="circle-step bg-light text-dark border">4</div>
+            <small>Poids</small>
+        </div>
+        <div class="line flex-grow-1 mx-1 bg-light"></div>
+    </div>
+</div>
+
+<style>
+.circle-step {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    line-height: 36px;
+    font-weight: bold;
+}
+.line {
+    height: 4px;
+}
+</style>
+
+<div class="container form-container">
+    <div class="card shadow border-0">
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0">Saisie des Tâches pour <strong>{{ produit.id_produit }}</strong></h4>
+        </div>
+        <div class="card-body">
+            <!-- Formulaire d'ajout -->
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_table }}
+                <div class="d-flex justify-content-between mt-3">
+                    <button type="submit" class="btn btn-success">Ajouter cette tâche</button>
+                    <div>
+                        <a href="{% url 'saisie_produits' %}" class="btn btn-outline-secondary me-2">← Ajouter un autre produit</a>
+                        <a href="{% url 'saisie_operateurs' %}" class="btn btn-primary">Passer aux opérateurs →</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Liste des tâches existantes -->
+    <div class="mt-5">
+        <h5>Tâches enregistrées :</h5>
+        <ul class="list-group">
+            {% for tache in taches %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>{{ tache.id_tache }}</strong> — {{ tache.description }}
+                        <span class="badge bg-info text-dark">Machine : {{ tache.machine }}</span>
+                    </div>
+                    <form method="post" action="{% url 'supprimer_tache' tache.id %}" onsubmit="return confirm('Supprimer cette tâche ?');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-danger">🗑️</button>
+                    </form>
+                </li>
+            {% empty %}
+                <li class="list-group-item text-muted">Aucune tâche ajoutée pour ce produit.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+</div>
+
+{% endblock %}

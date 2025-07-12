@@ -1,0 +1,93 @@
+
+{% extends "base.html" %}
+
+{% block title %}Produits{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <div class="text-center">
+            <div class="circle-step bg-primary text-white">1</div>
+            <small>Produits</small>
+        </div>
+        <div class="line flex-grow-1 mx-1 bg-secondary"></div>
+        <div class="text-center">
+            <div class="circle-step bg-light text-dark border">2</div>
+            <small>Tâches</small>
+        </div>
+        <div class="line flex-grow-1 mx-1 bg-secondary"></div>
+        <div class="text-center">
+            <div class="circle-step bg-light text-dark border">3</div>
+            <small>Opérateurs</small>
+        </div>
+        <div class="line flex-grow-1 mx-1 bg-secondary"></div>
+        <div class="text-center">
+            <div class="circle-step bg-light text-dark border">4</div>
+            <small>Poids</small>
+        </div>
+        <div class="line flex-grow-1 mx-1 bg-light"></div>
+    </div>
+</div>
+
+<style>
+.circle-step {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    line-height: 36px;
+    font-weight: bold;
+}
+.line {
+    height: 4px;
+}
+</style>
+
+
+<div class="container form-container">
+    <div class="card shadow border-0">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Ajouter un Produit</h4>
+        </div>
+        <div class="card-body">
+            <form method="post" class="needs-validation" novalidate>
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label for="{{ form.id_produit.id_for_label }}" class="form-label">ID Produit</label>
+                    {{ form.id_produit }}
+                </div>
+                <div class="mb-3">
+                    <label for="{{ form.cr.id_for_label }}" class="form-label">CR</label>
+                    {{ form.cr }}
+                </div>
+                <div class="mb-3">
+                    <label for="{{ form.quantite.id_for_label }}" class="form-label">Quantité</label>
+                    {{ form.quantite }}
+                </div>
+
+                <button type="submit" class="btn btn-success">Enregistrer</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Liste des produits enregistrés -->
+    <div class="mt-5">
+        <h5>Produits enregistrés :</h5>
+        <ul class="list-group">
+            {% for produit in prodacts %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ produit.id_produit }}
+                    <form method="post" action="{% url 'supprimer_produit' produit.id %}" onsubmit="return confirm('Voulez-vous vraiment supprimer ce produit ?');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>
+                    </form>
+                </li>
+            {% empty %}
+                <li class="list-group-item text-muted">Aucun produit ajouté pour le moment.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+</div>
+
+{% endblock %}
