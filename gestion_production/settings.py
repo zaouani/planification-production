@@ -26,6 +26,10 @@ ALLOWED_HOSTS = ['.railway.app']
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+CSRF_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = False
+
 # Application definition
 
 INSTALLED_APPS = [
