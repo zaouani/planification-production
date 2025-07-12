@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Produit, Tache, Operateur, PerformanceOperateur
 from .forms import ProduitForm, TacheForm, OperateurForm, PerformanceForm
 from .logique.principal_prog import demarrer_simulation
-from django.http import JsonResponse
+from django.middleware.csrf import get_token
 import json
 ### Étape 1 : Saisie du produit
 def saisie_produits(request):
@@ -83,7 +83,10 @@ def exemple_simulation(request):
     if request.method == 'POST' and 'exemple' in request.POST:
         request.session['mode'] = 'exemple'
         return redirect('config_poids')
-
+    else:
+        get_token(request)
+        return render(request, 'exemple_form.html')
+    
 def config_poids(request):
     default_poids = {
         'poids_cout': 20,
