@@ -46,13 +46,13 @@ class Operator:
             if X > 0:
                 T_learned = min(self.temps_total_passe(tache_id), 10000)  # Temps cumulé sur la tâche
                 Md = T_learned/2
-                s = self.learning_params['LC']  # Taux d'apprentissage
+                s = self.learning_params['LC']/100  # Taux d'apprentissage
                 performance_actuellee  =self.calculate_learning_effect(X, performance_actuelle , P_max,s, T_learned, Md)
                 performance_actuelleee  = max(P_min, min(P_max, performance_actuellee  ))
                 self.performancess[tache_id] = performance_actuelleee
             # Effet d'OUBLI (équation 4) si inactif > 1 jour
             elif Y>0:
-                    F = self.learning_params['FC']  # Taux d'oubli
+                    F = self.learning_params['FC']/100  # Taux d'oubli
                     Sd = 0.1
                     P_last = self.derniere_execution.get(tache_id, {}).get('performance', P_min)
                     performance_actuellee   =self.calculate_forgetting_effect(Y, P_last, P_min, F, Sd)
