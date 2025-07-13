@@ -33,14 +33,14 @@ def generer_structure_donnees():
         
         for operateur in operateurs:
             performances = {
-                perf.tache.id_tache: perf.performance_initiale
+                perf.tache.id_tache: perf.performance_initiale/100
                 for perf in operateur.performanceoperateur_set.all()
             }
             
             operateurs_structure[operateur.id_operateur] = {
                 "LC": float(operateur.lc)/100,
                 "FC": float(operateur.fc)/100,
-                "Performance": performances/100
+                "Performance": performances
             }
         
         logger.debug(f"Structure opérateurs générée - {len(operateurs_structure)} opérateurs")
