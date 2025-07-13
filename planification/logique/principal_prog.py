@@ -102,8 +102,8 @@ def generer_structure_donnees():
                     precedences[precedence_key][taches[i].id_tache] = taches[i+1].id_tache
         
         logger.debug(f"Structure précédences générée - {len(precedences)} niveaux")
-        
-        return machines_structure, operateurs_structure, produits_structure, precedences
+        precedances=[dic for dic in precedences.values()]
+        return machines_structure, operateurs_structure, produits_structure, precedances
 
     except Exception as e:
         logger.error(f"Erreur dans generer_structure_donnees: {str(e)}", exc_info=True)
@@ -375,9 +375,7 @@ def initialiser_systeme(validation,poids):
         if task.precedence:
             for tasksecond in Task.instances:
                 if task.precedence == tasksecond.id:
-                    task.precedence=tasksecond
-        else:
-                    print('la tache ',task.id,'n a pas de precedance')     
+                    task.precedence=tasksecond   
     
     # 4. Initialisation des autres composants
     Simulation.instances=[]
