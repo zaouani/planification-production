@@ -50,11 +50,11 @@ def generer_structure_donnees():
         
         # Optimisation: Préchargement des tâches et conversion des champs numériques
         produits = Produit.objects.prefetch_related(
-            Prefetch('tache_set', queryset=Tache.objects.all())
+            Prefetch('taches', queryset=Tache.objects.all())  # Changé 'tache_set' en 'taches'
         )
         
         for produit in produits:
-            taches_produit = produit.tache_set.all()
+            taches_produit = produit.taches.all()  # Changé tache_set en taches
             if taches_produit:
                 taches_liste = []
                 temps_standard_dict = {}
@@ -87,11 +87,11 @@ def generer_structure_donnees():
         
         # Version dynamique qui s'adapte au nombre de tâches
         produits_precedences = Produit.objects.prefetch_related(
-            Prefetch('tache_set', queryset=Tache.objects.order_by('ordre'))
+            Prefetch('taches', queryset=Tache.objects.order_by('ordre'))  # Changé 'tache_set' en 'taches'
         )
         
         for produit in produits_precedences:
-            taches = list(produit.tache_set.all())
+            taches = list(produit.taches.all())  # Changé tache_set en taches
             if taches:
                 for i in range(len(taches) - 1):
                     precedence_key = f'precedence{i+1}'
