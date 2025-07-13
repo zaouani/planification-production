@@ -33,7 +33,7 @@ def generer_structure_donnees():
         
         for operateur in operateurs:
             performances = {
-                perf.tache.id_tache: perf.performance_initiale/100
+                perf.tache.id_tache: perf.performance_initiale/1000
                 for perf in operateur.performanceoperateur_set.all()
             }
             
