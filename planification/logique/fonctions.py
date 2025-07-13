@@ -26,7 +26,6 @@ def boucle_principale(simulation, ordonnanceur,cout_global):
 
         # 3. Traiter l'événement
         if evenement.type == "FIN_TACHE":
-            print('fin de', evenement.tache.id)
             ordonnanceur.terminer_tache(evenement.tache, simulation)
             #metre à jour les performances
             temps_reel = evenement.tache.temps_standard +evenement.tache.temps_standard*(1-evenement.operateur.performancess [evenement.tache.id])

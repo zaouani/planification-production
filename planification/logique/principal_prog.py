@@ -38,9 +38,9 @@ def generer_structure_donnees():
             }
             
             operateurs_structure[operateur.id_operateur] = {
-                "LC": float(operateur.lc),
-                "FC": float(operateur.fc),
-                "Performance": performances
+                "LC": float(operateur.lc)/100,
+                "FC": float(operateur.fc)/100,
+                "Performance": performances/100
             }
         
         logger.debug(f"Structure opérateurs générée - {len(operateurs_structure)} opérateurs")
