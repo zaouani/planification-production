@@ -7,36 +7,54 @@ from django.db.models import Prefetch
 
 logger = logging.getLogger(__name__)
 
-def generer_structure_donnees(user):
+def generer_structure_donnees():
     try:
+        # 1. Structure pour les machines et leurs tâches
         machines_structure = {}
-        machines_distinctes = Tache.objects.filter(produit__user_id=user.id).values_list('machine', flat=True).distinct()  # Changé ici
-
+        
+        # Optimisation: Récupération en une seule requête
+        machines_distinctes = Tache.objects.values_list('machine', flat=True).distinct()
+        
         for machine in machines_distinctes:
-            taches_machine = Tache.objects.filter(machine=machine, produit__user_id=user.id).values_list('id_tache', flat=True)  # Changé ici
+            taches_machine = Tache.objects.filter(machine=machine)\
+                                        .values_list('id_tache', flat=True)
             machines_structure[machine] = list(taches_machine)
+        
+        logger.debug(f"Structure machines générée - {len(machines_structure)} machines")
 
+        # 2. Structure pour les opérateurs et leurs performances
         operateurs_structure = {}
-        operateurs = Operateur.objects.filter(user_id=user.id).prefetch_related(  # Changé ici
-            Prefetch('performanceoperateur_set', queryset=PerformanceOperateur.objects.select_related('tache'))
+        
+        # Préchargement des performances pour éviter les requêtes N+1
+        operateurs = Operateur.objects.prefetch_related(
+            Prefetch('performanceoperateur_set', 
+                   queryset=PerformanceOperateur.objects.select_related('tache'))
         )
-
+        
         for operateur in operateurs:
             performances = {
-                perf.tache.id_tache: perf.performance_initiale / 100
+                perf.tache.id_tache: perf.performance_initiale/100
                 for perf in operateur.performanceoperateur_set.all()
             }
+            
             operateurs_structure[operateur.id_operateur] = {
-                "LC": float(operateur.lc) / 100,
-                "FC": float(operateur.fc) / 100,
+                "LC": float(operateur.lc)/100,
+                "FC": float(operateur.fc)/100,
                 "Performance": performances
             }
+        
+        logger.debug(f"Structure opérateurs générée - {len(operateurs_structure)} opérateurs")
 
+        # 3. Structure pour les produits
         produits_structure = []
-        produits = Produit.objects.filter(user_id=user.id).prefetch_related('taches')  # Changé ici
-
+        
+        # Optimisation: Préchargement des tâches et conversion des champs numériques
+        produits = Produit.objects.prefetch_related(
+            Prefetch('taches', queryset=Tache.objects.all())  # Changé 'tache_set' en 'taches'
+        )
+        
         for produit in produits:
-            taches_produit = produit.taches.all()
+            taches_produit = produit.taches.all()  # Changé tache_set en taches
             if taches_produit:
                 taches_liste = []
                 temps_standard_dict = {}
@@ -51,6 +69,7 @@ def generer_structure_donnees(user):
                     cr_value = float(produit.cr)
                 except (TypeError, ValueError):
                     cr_value = 0.0
+                    logger.warning(f"Valeur CR invalide pour le produit {produit.id_produit}")
 
                 produits_structure.append({
                     "ID": produit.id_produit,
@@ -60,23 +79,31 @@ def generer_structure_donnees(user):
                     "Cr": cr_value,
                     "Machines": machines_dict
                 })
+        
+        logger.debug(f"Structure produits générée - {len(produits_structure)} produits")
 
+        # 4. Structure des précédences
         precedences = {}
-        produits_precedences = Produit.objects.filter(user_id=user.id).prefetch_related(  # Changé ici
-            Prefetch('taches', queryset=Tache.objects.order_by('ordre'))
+        
+        # Version dynamique qui s'adapte au nombre de tâches
+        produits_precedences = Produit.objects.prefetch_related(
+            Prefetch('taches', queryset=Tache.objects.order_by('ordre'))  # Changé 'tache_set' en 'taches'
         )
         
         for produit in produits_precedences:
-            taches = list(produit.taches.all())
+            taches = list(produit.taches.all())  # Changé tache_set en taches
             if taches:
                 for i in range(len(taches) - 1):
                     precedence_key = f'precedence{i+1}'
+                    
                     if precedence_key not in precedences:
                         precedences[precedence_key] = {}
+                    
                     precedences[precedence_key][taches[i].id_tache] = taches[i+1].id_tache
-
-        precedences = [dic for dic in precedences.values()]
-        return machines_structure, operateurs_structure, produits_structure, precedences
+        
+        logger.debug(f"Structure précédences générée - {len(precedences)} niveaux")
+        precedances=[dic for dic in precedences.values()]
+        return machines_structure, operateurs_structure, produits_structure, precedances
 
     except Exception as e:
         logger.error(f"Erreur dans generer_structure_donnees: {str(e)}", exc_info=True)
@@ -280,10 +307,10 @@ def default_example() :
     precedence=[precedance1, precedance2, precedance3, precedance4]
     return machines, operateurs_data, produits_data, precedence
 
-def initialiser_systeme(validation,poids, user):
+def initialiser_systeme(validation,poids):
     """Initialise toutes les structures de données à partir des données fournies"""
     if validation==1:
-        machines_data, operateurs_data, produits_data, preced=generer_structure_donnees(user)
+        machines_data, operateurs_data, produits_data, preced=generer_structure_donnees()
     else:
         machines_data, operateurs_data, produits_data, preced=default_example()
     # 1. Création des machines
