@@ -3,62 +3,65 @@ from .models import Produit, Tache, Operateur, PerformanceOperateur
 from .forms import ProduitForm, TacheForm, OperateurForm, PerformanceForm
 from .logique.principal_prog import demarrer_simulation
 from django.middleware.csrf import get_token
+from django.http import Http404
 import json
 ### Étape 1 : Saisie du produit
 def saisie_produits(request):
     if request.method == 'POST':
         form = ProduitForm(request.POST)
         if form.is_valid():
-            produit = form.save()
-            # Redirection avec l'ID du produit créé
+            produit = form.save(commit=False)  
+            produit.user = request.user        
+            produit.save()                     
             return redirect('saisie_taches', produit_id=produit.id)
     else:
         form = ProduitForm()
-    prodacts= Produit.objects.all()
+        
+    prodacts = Produit.objects.filter(user=request.user)  
     return render(request, 'saisie_produits.html', {'form': form, 'prodacts': prodacts})
 
 ### Étape 2 : Saisie des tâches pour le produit
 def saisie_taches(request, produit_id):
     produit = get_object_or_404(Produit, id=produit_id)
-    
+    if produit.user != request.user:
+        raise Http404("Produit non trouvé.")
     if request.method == 'POST':
         form = TacheForm(request.POST)
         if form.is_valid():
             tache = form.save(commit=False)
             tache.produit = produit
             tache.save()
-            return redirect('saisie_taches', produit_id=produit.id)  # Reste sur la même page
+            return redirect('saisie_taches', produit_id=produit.id)
     else:
         form = TacheForm()
-    
     taches = Tache.objects.filter(produit=produit)
     return render(request, 'saisie_taches.html', {
         'form': form,
         'produit': produit,
         'taches': taches
     })
-
 ### Étape 3 : Saisie des opérateurs et performances
 def saisie_operateurs(request):
     if request.method == 'POST':
         request.session['mode'] = 'manuel'
         form_operateur = OperateurForm(request.POST)
 
-        # Récupère toutes les tâches existantes
-        all_taches = Tache.objects.all()
+        # Récupère uniquement les tâches de l'utilisateur connecté
+        all_taches = Tache.objects.filter(produit__user=request.user)
         performances = []
 
-        # Extraire les performances à partir des champs HTML dynamiques
         for tache in all_taches:
             valeur_str = request.POST.get(f'performance_{tache.id}')
             try:
                 valeur = float(valeur_str)
                 performances.append((tache, valeur))
             except (TypeError, ValueError):
-                continue  # Ignore les erreurs de conversion
+                continue
 
         if form_operateur.is_valid():
-            operateur = form_operateur.save()
+            operateur = form_operateur.save(commit=False)
+            operateur.user = request.user  
+            operateur.save()
 
             for tache, perf in performances:
                 PerformanceOperateur.objects.create(
@@ -70,9 +73,9 @@ def saisie_operateurs(request):
             return redirect('saisie_operateurs')
     else:
         form_operateur = OperateurForm()
-        all_taches = Tache.objects.all()
+        all_taches = Tache.objects.filter(produit__user=request.user)
 
-    operateurs = Operateur.objects.all()
+    operateurs = Operateur.objects.filter(user=request.user)  
     return render(request, 'saisie_operateurs.html', {
         'form_operateur': form_operateur,
         'taches': all_taches,
@@ -108,7 +111,7 @@ def config_poids(request):
             validation = 1 if mode == 'manuel' else 0
 
 
-            data = demarrer_simulation(validation, poids)
+            data = demarrer_simulation(validation, poids, user=request.user)
             context = {
                 
                 'gantt_data_json': json.dumps(data['gantt']),
@@ -145,37 +148,39 @@ def exemple_detaille(request):
     return render(request, 'exemple_detaille.html')
 
 def supprimer_produit(request, produit_id):
-    produit = get_object_or_404(Produit, id=produit_id)
+    produit = get_object_or_404(Produit, id=produit_id, user=request.user)
     produit.delete()
     return redirect('saisie_produits')
 
 def supprimer_tache(request, tache_id):
-    tache = get_object_or_404(Tache, id=tache_id)
-    produit_id = tache.produit.id  # Pour rediriger vers le bon produit
+    tache = get_object_or_404(Tache, id=tache_id, produit__user=request.user)
+    produit_id = tache.produit.id
     tache.delete()
     return redirect('saisie_taches', produit_id=produit_id)
 
 def supprimer_produit_apercu(request, produit_id):
-    produit = get_object_or_404(Produit, id=produit_id)
+    produit = get_object_or_404(Produit, id=produit_id, user=request.user)
     produit.delete()
     return redirect('apercu_donnees')
 
 def supprimer_tache_apercu(request, tache_id):
-    tache = get_object_or_404(Tache, id=tache_id)
-    produit_id = tache.produit.id  # Pour rediriger vers le bon produit
+    tache = get_object_or_404(Tache, id=tache_id, produit__user=request.user)
+    produit_id = tache.produit.id
     tache.delete()
     return redirect('apercu_donnees', produit_id=produit_id)
 
 def apercu_donnees(request):
-    produits = Produit.objects.prefetch_related('taches').all()
-    operateurs = Operateur.objects.all()
-    performances = PerformanceOperateur.objects.select_related('operateur', 'tache', 'tache__produit')
-    return render(request, 'apercu_donnees.html', {'produits': produits, 
-                                                    'operateurs': operateurs,
-                                                    'performances': performances,})
+    produits = Produit.objects.filter(user=request.user).prefetch_related('taches')
+    operateurs = Operateur.objects.filter(user=request.user)
+    performances = PerformanceOperateur.objects.filter(operateur__user=request.user).select_related('operateur', 'tache', 'tache__produit')
+    return render(request, 'apercu_donnees.html', {
+        'produits': produits,
+        'operateurs': operateurs,
+        'performances': performances,
+    })
 
 def modifier_produit(request, produit_id):
-    produit = get_object_or_404(Produit, id=produit_id)
+    produit = get_object_or_404(Produit, id=produit_id, user=request.user)
     if request.method == 'POST':
         form = ProduitForm(request.POST, instance=produit)
         if form.is_valid():
@@ -185,21 +190,21 @@ def modifier_produit(request, produit_id):
         form = ProduitForm(instance=produit)
     return render(request, 'modifier_produit.html', {'form': form})
 
-def modifier_tache(request, tache_id):
-    tache = get_object_or_404(Tache, id=tache_id)
 
+def modifier_tache(request, tache_id):
+    tache = get_object_or_404(Tache, id=tache_id, produit__user=request.user)
     if request.method == 'POST':
         form = TacheForm(request.POST, instance=tache)
         if form.is_valid():
             form.save()
-            return redirect('apercu_donnees')  # Redirige vers la page d’aperçu
+            return redirect('apercu_donnees')
     else:
         form = TacheForm(instance=tache)
-
     return render(request, 'modifier_tache.html', {'form': form, 'tache': tache})
 
+
 def modifier_operateur(request, operateur_id):
-    operateur = get_object_or_404(Operateur, id=operateur_id)
+    operateur = get_object_or_404(Operateur, id=operateur_id, user=request.user)
     if request.method == 'POST':
         form = OperateurForm(request.POST, instance=operateur)
         if form.is_valid():
@@ -207,10 +212,10 @@ def modifier_operateur(request, operateur_id):
             return redirect('apercu_donnees')
     else:
         form = OperateurForm(instance=operateur)
-
     return render(request, 'modifier_operateur.html', {'form': form, 'operateur': operateur})
 
+
 def supprimer_operateur(request, operateur_id):
-    operateur = get_object_or_404(Operateur, id=operateur_id)
+    operateur = get_object_or_404(Operateur, id=operateur_id, user=request.user)
     operateur.delete()
     return redirect('apercu_donnees')
