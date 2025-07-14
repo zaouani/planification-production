@@ -1,9 +1,6 @@
 from django.db import models
-from django.contrib.auth.models import User
-from django.db import models
 
 class Produit(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
     id_produit = models.CharField(max_length=50, unique=True)
     cr = models.CharField(max_length=50)
     quantite = models.IntegerField()
@@ -28,7 +25,6 @@ class Tache(models.Model):
         return f"{self.produit.id_produit}.{self.id_tache} - {self.description}"
 
 class Operateur(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
     id_operateur = models.CharField(max_length=50, unique=True)
     lc = models.FloatField(help_text="Learning Curve (%)")
     fc = models.FloatField(help_text="Facteur de charge (%)")
