@@ -10,13 +10,14 @@ logger = logging.getLogger(__name__)
 def generer_structure_donnees(user):
     try:
         machines_structure = {}
-        machines_distinctes = Tache.objects.filter(produit__user=user).values_list('machine', flat=True).distinct()
+        machines_distinctes = Tache.objects.filter(produit__user_id=user.id).values_list('machine', flat=True).distinct()  # Changé ici
 
         for machine in machines_distinctes:
-            taches_machine = Tache.objects.filter(machine=machine, produit__user=user).values_list('id_tache', flat=True)
+            taches_machine = Tache.objects.filter(machine=machine, produit__user_id=user.id).values_list('id_tache', flat=True)  # Changé ici
             machines_structure[machine] = list(taches_machine)
+
         operateurs_structure = {}
-        operateurs = Operateur.objects.filter(user=user).prefetch_related(
+        operateurs = Operateur.objects.filter(user_id=user.id).prefetch_related(  # Changé ici
             Prefetch('performanceoperateur_set', queryset=PerformanceOperateur.objects.select_related('tache'))
         )
 
@@ -32,7 +33,7 @@ def generer_structure_donnees(user):
             }
 
         produits_structure = []
-        produits = Produit.objects.filter(user=user).prefetch_related('taches')
+        produits = Produit.objects.filter(user_id=user.id).prefetch_related('taches')  # Changé ici
 
         for produit in produits:
             taches_produit = produit.taches.all()
@@ -59,10 +60,12 @@ def generer_structure_donnees(user):
                     "Cr": cr_value,
                     "Machines": machines_dict
                 })
+
         precedences = {}
-        produits_precedences = Produit.objects.filter(user=user).prefetch_related(
+        produits_precedences = Produit.objects.filter(user_id=user.id).prefetch_related(  # Changé ici
             Prefetch('taches', queryset=Tache.objects.order_by('ordre'))
         )
+        
         for produit in produits_precedences:
             taches = list(produit.taches.all())
             if taches:
@@ -71,8 +74,10 @@ def generer_structure_donnees(user):
                     if precedence_key not in precedences:
                         precedences[precedence_key] = {}
                     precedences[precedence_key][taches[i].id_tache] = taches[i+1].id_tache
+
         precedences = [dic for dic in precedences.values()]
         return machines_structure, operateurs_structure, produits_structure, precedences
+
     except Exception as e:
         logger.error(f"Erreur dans generer_structure_donnees: {str(e)}", exc_info=True)
         raise
