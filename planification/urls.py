@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-
+from django.contrib.auth import views as auth_views
 urlpatterns = [
     path('produits/', views.saisie_produits, name='saisie_produits'),
     path('taches/', views.saisie_taches, name='saisie_taches'),
@@ -20,5 +20,7 @@ urlpatterns = [
     path('apercu_donnees/', views.apercu_donnees, name='apercu_donnees'),
     path('operateur/<int:operateur_id>/modifier/', views.modifier_operateur, name='modifier_operateur'),
     path('operateur/<int:operateur_id>/supprimer/', views.supprimer_operateur, name='supprimer_operateur'),
-
+    path('register/', views.register, name='register'),
+    path('login/', auth_views.LoginView.as_view(), name='login'),
+    path('logout/', auth_views.LogoutView.as_view(template_name='registration/logout.html',next_page='login', http_method_names=['get', 'post']), name='logout'),
 ]
