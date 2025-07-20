@@ -146,5 +146,5 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'saisie_produits'  # ou autre vue par défaut après connexion
-LOGOUT_REDIRECT_URL = 'login'  # optionnel si tu ne le passes pas dans l'URL
+LOGIN_REDIRECT_URL = 'home'  
+LOGOUT_REDIRECT_URL = 'login'  
