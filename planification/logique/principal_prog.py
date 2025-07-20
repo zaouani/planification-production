@@ -390,9 +390,9 @@ def initialiser_systeme(validation,poids,user):
 
     return produits, operateurs, machines, simulation, ordonnanceur, cout_global,taches_initiales
 
-def demarrer_simulation(validation,poids):
+def demarrer_simulation(validation,poids, user):
     """Lance la simulation principale avec gestion optimisée des affectations initiales"""
-    produits, operateurs, machines, simulation, ordonnanceur, cout_global,taches_initiales = initialiser_systeme(validation,poids)
+    produits, operateurs, machines, simulation, ordonnanceur, cout_global,taches_initiales = initialiser_systeme(validation,poids,user)
     # 1. Préparation des structures de données
     taches_affectees = set()
     operateurs_disponibles = operateurs
