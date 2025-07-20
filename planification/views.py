@@ -86,7 +86,7 @@ def saisie_operateurs(request):
         'operateurs': operateurs
     })
 
-@login_required
+
 def config_poids(request):
     default_poids = {
         'poids_cout': 20,
